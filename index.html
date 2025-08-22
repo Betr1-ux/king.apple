@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KING GAME</title>
+<style>
+  :root{
+    --neon:#00ff88;
+    --bg1:#000000;
+    --bg2:#111111;
+    --btn:#00ff88;
+    --card-bg:#0a0a0a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
+    background: radial-gradient(circle at center, var(--bg1) 0%, var(--bg2) 100%);
+    font-family: 'Segoe UI', Tahoma, sans-serif;color:#fff;
+  }
+  .card{
+    width:min(95vw,380px);
+    background:var(--card-bg);
+    border-radius:18px;
+    padding:24px 20px;
+    border:2px solid var(--neon);
+    box-shadow:0 0 25px rgba(0,255,136,.4), inset 0 0 12px rgba(0,255,136,.3);
+    position:relative;
+  }
+  .title{ text-align:center;font-size:28px;font-weight:bold;color:#fff;margin-bottom:18px;text-shadow:0 0 12px var(--neon); }
+  .input{
+    width:100%;height:48px;border:none;border-radius:12px;background:#1a1a1a;
+    color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;
+    box-shadow: inset 0 0 8px rgba(0,255,136,.4);
+  }
+  .error{display:none;color:#ff4b4b;font-weight:700;text-align:center;margin:-2px 0 10px;}
+  .btn{
+    width:100%;height:50px;border:none;border-radius:14px;cursor:pointer;background:var(--btn);
+    color:#000;font-size:18px;font-weight:700;transition:transform .08s ease, box-shadow .2s;
+    box-shadow:0 6px 20px rgba(0,255,136,.3);
+  }
+  .btn:active{ transform:scale(.96) }
+  .btn:hover{ box-shadow:0 8px 26px rgba(0,255,136,.6); }
+
+  /* زر السلة تحت زر التأكيد */
+  .cart-btn{
+    margin-top:14px;
+    width:100%;height:52px;background:#0f0f0f;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;border:2px solid #1f1f1f;
+    cursor:pointer;box-shadow:0 0 12px rgba(255,255,255,.06);transition:background .2s ease;
+  }
+  .cart-btn:hover{ background:#1a1a1a; }
+  .cart-btn svg{ display:block }
+
+  #attempts{ text-align:center;font-size:18px;font-weight:bold;color:var(--neon);margin-bottom:12px; }
+
+  /* صندوق الشبكة متمركز */
+  #gridBox{
+    border:2px solid var(--neon);border-radius:12px;padding:12px;
+    box-shadow: inset 0 0 18px rgba(0,255,136,.3);
+    margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
+    min-height:112px;width:max-content;
+  }
+  #grid{
+    display:grid;grid-template-columns:repeat(5,40px);grid-template-rows:repeat(6,40px);
+    gap:6px;justify-content:center;
+  }
+  .cell{ font-size:26px;display:flex;align-items:center;justify-content:center; }
+
+  #mainBox{display:none;}
+</style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="loginBox" class="card">
+  <h1 class="title">تسجيل الدخول</h1>
+  <input id="userId" class="input" type="text" placeholder="ID" />
+  <input id="code" class="input" type="text" placeholder="Code" autocomplete="one-time-code" />
+  <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
+  <button class="btn" onclick="login()">تأكيد</button>
+
+  <!-- زر السلة -->
+  <div id="cartBtn" class="cart-btn" onclick="openTelegram()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="34" height="34" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="22" cy="52" r="6" fill="#d43b3b" stroke="#ffffff" stroke-width="4"></circle>
+      <circle cx="46" cy="52" r="6" fill="#d43b3b" stroke="#ffffff" stroke-width="4"></circle>
+      <path d="M8 12h8l6 28h26l6-20H20" />
+    </svg>
+  </div>
+</div>
+
+<!-- شاشة الشبكة -->
+<div id="mainBox" class="card">
+  <h2 class="title" style="font-size:24px;">سكربت التفاحه</h2>
+  <div id="attempts">المحاولات: 0</div>
+
+  <div id="gridBox">
+    <div id="grid"></div>
+  </div>
+
+  <button class="btn" onclick="useAttempt()">توليد شبكة</button>
+  <button class="btn" style="background:#222;color:#fff;margin-top:8px;" onclick="copyGrid()">نسخ الشبكة</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAF1K59iKFsVH-wyAKyGw2wsIMUIرT9WMg",
+    authDomain: "admin-3fd30.firebaseapp.com",
+    databaseURL: "https://admin-3fd30-default-rtdb.firebaseio.com",
+    projectId: "admin-3fd30",
+    storageBucket: "admin-3fd30.firebasestorage.app",
+    messagingSenderId: "981773176798",
+    appId: "1:981773176798:web:1ebc106e60af04ed8a174f",
+    measurementId: "G-35L6036ED8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const APPLE = "🍎";
+  const BLOCK = "🟦";
+  const ROWS = 6;
+  const COLS = 5;
+
+  let attempts = 0;
+  let currentCode = "";
+  let lastGridArray = [];
+
+  // فتح تيليجرام مباشرة
+  window.openTelegram = () => {
+    window.open("https://t.me/nbvvte", "_blank");
+  };
+
+  window.login = async () => {
+    const userId = document.getElementById("userId").value.trim();
+    const codeInput = document.getElementById("code").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    if (!userId || !codeInput) {
+      errorMsg.style.display = "block";
+      errorMsg.textContent = " ID ادخل الكود و";
+      return;
+    }
+
+    try {
+      const snap = await get(ref(db, "codes/" + codeInput));
+      if (!snap.exists()) throw new Error("invalid");
+
+      const data = snap.val();
+      if ((data.remaining ?? 0) <= 0) throw new Error("exhausted");
+
+      currentCode = codeInput;
+      attempts = data.remaining;
+      await update(ref(db, "codes/" + codeInput), { user: userId });
+
+      errorMsg.style.display = "none";
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("mainBox").style.display = "block";
+
+      // إخفاء زر السلة بعد الدخول
+      const cart = document.getElementById("cartBtn");
+      if (cart) cart.style.display = "none";
+
+      updateAttemptsUI();
+    } catch(e){
+      errorMsg.style.display = "block";
+      errorMsg.textContent = "كود خطأ أو انتهى";
+    }
+  };
+
+  function updateAttemptsUI(){
+    document.getElementById("attempts").textContent = "المحاولات: " + attempts;
+  }
+
+  window.useAttempt = async () => {
+    if (attempts <= 0){ logout(); return; }
+    attempts--;
+    updateAttemptsUI();
+    generateGrid();
+
+    await update(ref(db, "codes/" + currentCode), { remaining: attempts });
+
+    if (attempts <= 0){ setTimeout(()=> logout(), 800); }
+  };
+
+  window.logout = () => {
+    document.getElementById("mainBox").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("grid").innerHTML = "";
+
+    // إظهار السلة مرة أخرى
+    const cart = document.getElementById("cartBtn");
+    if (cart) cart.style.display = "flex";
+  };
+
+  function generateGrid(){
+    const arr = Array(ROWS * COLS).fill(BLOCK);
+    for (let r = 0; r < ROWS; r++){
+      const side = Math.random() < 0.5 ? 0 : COLS - 1;
+      arr[r * COLS + side] = APPLE;
+    }
+    lastGridArray = arr.slice();
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    arr.forEach(item=>{
+      const div = document.createElement("div");
+      div.className = "cell";
+      div.textContent = item;
+      grid.appendChild(div);
+    });
+  }
+
+  window.copyGrid = () => {
+    if (!lastGridArray.length) return;
+    let out = "";
+    for(let r=0; r<ROWS; r++){
+      out += lastGridArray.slice(r*COLS, (r+1)*COLS).join(" ") + (r<ROWS-1 ? "\n" : "");
+    }
+    navigator.clipboard.writeText(out).then(()=> alert("تم النسخ ✅"));
+  };
+</script>
+</body>
+  </html>
