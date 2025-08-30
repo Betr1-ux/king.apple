@@ -42,7 +42,6 @@
   .btn:active{ transform:scale(.96) }
   .btn:hover{ box-shadow:0 8px 26px rgba(0,255,136,.6); }
 
-  /* زر السلة تحت زر التأكيد */
   .cart-btn{
     margin-top:14px;
     width:100%;height:52px;background:#0f0f0f;border-radius:14px;
@@ -54,7 +53,6 @@
 
   #attempts{ text-align:center;font-size:18px;font-weight:bold;color:var(--neon);margin-bottom:12px; }
 
-  /* صندوق الشبكة متمركز */
   #gridBox{
     border:2px solid var(--neon);border-radius:12px;padding:12px;
     box-shadow: inset 0 0 18px rgba(0,255,136,.3);
@@ -62,7 +60,7 @@
     min-height:112px;width:max-content;
   }
   #grid{
-    display:grid;grid-template-columns:repeat(5,40px);grid-template-rows:repeat(6,40px);
+    display:grid;grid-template-columns:repeat(5,40px);
     gap:6px;justify-content:center;
   }
   .cell{ font-size:26px;display:flex;align-items:center;justify-content:center; }
@@ -72,7 +70,6 @@
 </head>
 <body>
 
-<!-- شاشة تسجيل الدخول -->
 <div id="loginBox" class="card">
   <h1 class="title">تسجيل الدخول</h1>
   <input id="userId" class="input" type="text" placeholder="ID" />
@@ -80,7 +77,6 @@
   <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
   <button class="btn" onclick="login()">تأكيد</button>
 
-  <!-- زر السلة -->
   <div id="cartBtn" class="cart-btn" onclick="openTelegram()">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="34" height="34" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="22" cy="52" r="6" fill="#d43b3b" stroke="#ffffff" stroke-width="4"></circle>
@@ -90,7 +86,6 @@
   </div>
 </div>
 
-<!-- شاشة الشبكة -->
 <div id="mainBox" class="card">
   <h2 class="title" style="font-size:24px;">سكربت التفاحه</h2>
   <div id="attempts">المحاولات: 0</div>
@@ -123,14 +118,12 @@
 
   const APPLE = "🍎";
   const BLOCK = "🟦";
-  const ROWS = 6;
-  const COLS = 5;
+  const COLS = 5; // عدد الأعمدة = 5 فقط (صف واحد)
 
   let attempts = 0;
   let currentCode = "";
   let lastGridArray = [];
 
-  // فتح تيليجرام مباشرة
   window.openTelegram = () => {
     window.open("https://t.me/nbvvte", "_blank");
   };
@@ -161,7 +154,6 @@
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("mainBox").style.display = "block";
 
-      // إخفاء زر السلة بعد الدخول
       const cart = document.getElementById("cartBtn");
       if (cart) cart.style.display = "none";
 
@@ -192,17 +184,14 @@
     document.getElementById("loginBox").style.display = "block";
     document.getElementById("grid").innerHTML = "";
 
-    // إظهار السلة مرة أخرى
     const cart = document.getElementById("cartBtn");
     if (cart) cart.style.display = "flex";
   };
 
   function generateGrid(){
-    const arr = Array(ROWS * COLS).fill(BLOCK);
-    for (let r = 0; r < ROWS; r++){
-      const side = Math.random() < 0.5 ? 0 : COLS - 1;
-      arr[r * COLS + side] = APPLE;
-    }
+    const arr = Array(COLS).fill(BLOCK);
+    const col = Math.floor(Math.random() * COLS); // مكان التفاحة في الصف
+    arr[col] = APPLE;
     lastGridArray = arr.slice();
 
     const grid = document.getElementById("grid");
@@ -217,12 +206,9 @@
 
   window.copyGrid = () => {
     if (!lastGridArray.length) return;
-    let out = "";
-    for(let r=0; r<ROWS; r++){
-      out += lastGridArray.slice(r*COLS, (r+1)*COLS).join(" ") + (r<ROWS-1 ? "\n" : "");
-    }
+    let out = lastGridArray.join(" ");
     navigator.clipboard.writeText(out).then(()=> alert("تم النسخ ✅"));
   };
 </script>
 </body>
-  </html>
+</html>
