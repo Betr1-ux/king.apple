@@ -3,99 +3,129 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>KING GAME</title>
+<title>🍎 Apple Game</title>
 <style>
-  :root{
-    --neon:#00ff88;
-    --bg1:#000000;
-    --bg2:#111111;
-    --btn:#00ff88;
-    --card-bg:#0a0a0a;
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #2a004a;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
-    background: radial-gradient(circle at center, var(--bg1) 0%, var(--bg2) 100%);
-    font-family: 'Segoe UI', Tahoma, sans-serif;color:#fff;
+  .card {
+    text-align: center;
+    background: #4a006e;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 0 20px rgba(255,102,204,0.4);
+    width: min(95vw, 420px);
+    position: relative;
   }
-  .card{
-    width:min(95vw,380px);
-    background:var(--card-bg);
-    border-radius:18px;
-    padding:24px 20px;
-    border:2px solid var(--neon);
-    box-shadow:0 0 25px rgba(0,255,136,.4), inset 0 0 12px rgba(0,255,136,.3);
-    position:relative;
+  h1 { color: #ff66cc; font-size: 28px; margin-bottom: 15px; }
+  .input {
+    width: 100%; height: 44px; border: none; border-radius: 10px;
+    margin: 6px 0; padding: 0 10px; text-align: center; font-size: 16px;
   }
-  .title{ text-align:center;font-size:28px;font-weight:bold;color:#fff;margin-bottom:18px;text-shadow:0 0 12px var(--neon); }
-  .input{
-    width:100%;height:48px;border:none;border-radius:12px;background:#1a1a1a;
-    color:#fff;font-size:16px;text-align:center;outline:none;margin-bottom:10px;
-    box-shadow: inset 0 0 8px rgba(0,255,136,.4);
+  .error { display: none; color: #ff4b4b; font-weight: 700; margin: 6px 0; }
+  button {
+    padding: 12px 24px; border: none; border-radius: 10px;
+    background: #ff66cc; color: #fff; font-size: 16px;
+    cursor: pointer; font-weight: bold;
   }
-  .error{display:none;color:#ff4b4b;font-weight:700;text-align:center;margin:-2px 0 10px;}
-  .btn{
-    width:100%;height:50px;border:none;border-radius:14px;cursor:pointer;background:var(--btn);
-    color:#000;font-size:18px;font-weight:700;transition:transform .08s ease, box-shadow .2s;
-    box-shadow:0 6px 20px rgba(0,255,136,.3);
+  button:hover { opacity: .9; }
+  .badge {
+    background: #6a008f; padding: 8px 14px; border-radius: 10px;
+    margin: 10px auto; display: inline-block;
   }
-  .btn:active{ transform:scale(.96) }
-  .btn:hover{ box-shadow:0 8px 26px rgba(0,255,136,.6); }
+  .row { display: flex; align-items: center; justify-content: center; margin: 10px 0; gap: 10px; }
+  .mult { background: #ff66cc; padding: 8px; border-radius: 8px; font-weight: bold; min-width: 70px; }
+  .slots { display: flex; gap: 10px; }
+  .slot {
+    width: 46px; height: 46px; background: #fff; border-radius: 8px;
+    font-size: 26px; display: flex; align-items: center; justify-content: center; color: #000;
+  }
+  .loader {
+    border: 6px solid #fff; border-top: 6px solid #ff66cc;
+    border-radius: 50%; width: 60px; height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto; display: none;
+  }
+  @keyframes spin { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
 
-  .cart-btn{
-    margin-top:14px;
-    width:100%;height:52px;background:#0f0f0f;border-radius:14px;
-    display:flex;align-items:center;justify-content:center;border:2px solid #1f1f1f;
-    cursor:pointer;box-shadow:0 0 12px rgba(255,255,255,.06);transition:background .2s ease;
+  /* زر التوجيه للتيليجرام */
+  .telegram-btn {
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0088cc;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0,136,204,0.6);
+    cursor: pointer;
+    transition: 0.3s;
   }
-  .cart-btn:hover{ background:#1a1a1a; }
-  .cart-btn svg{ display:block }
-
-  #attempts{ text-align:center;font-size:18px;font-weight:bold;color:var(--neon);margin-bottom:12px; }
-
-  #gridBox{
-    border:2px solid var(--neon);border-radius:12px;padding:12px;
-    box-shadow: inset 0 0 18px rgba(0,255,136,.3);
-    margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
-    min-height:112px;width:max-content;
+  .telegram-btn:hover { background: #00aaff; }
+  .telegram-btn img {
+    width: 28px; height: 28px;
   }
-  #grid{
-    display:grid;grid-template-columns:repeat(5,40px);
-    gap:6px;justify-content:center;
-  }
-  .cell{ font-size:26px;display:flex;align-items:center;justify-content:center; }
-
-  #mainBox{display:none;}
 </style>
 </head>
 <body>
 
+<!-- تسجيل الدخول -->
 <div id="loginBox" class="card">
-  <h1 class="title">تسجيل الدخول</h1>
+  <h1>تسجيل الدخول</h1>
   <input id="userId" class="input" type="text" placeholder="ID" />
   <input id="code" class="input" type="text" placeholder="Code" autocomplete="one-time-code" />
   <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
-  <button class="btn" onclick="login()">تأكيد</button>
+  <button onclick="login()">تأكيد</button>
 
-  <div id="cartBtn" class="cart-btn" onclick="openTelegram()">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="34" height="34" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="22" cy="52" r="6" fill="#d43b3b" stroke="#ffffff" stroke-width="4"></circle>
-      <circle cx="46" cy="52" r="6" fill="#d43b3b" stroke="#ffffff" stroke-width="4"></circle>
-      <path d="M8 12h8l6 28h26l6-20H20" />
-    </svg>
-  </div>
+  <!-- زر التيليجرام -->
+  <a href="https://t.me/nbvvte" target="_blank" class="telegram-btn">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram"/>
+  </a>
 </div>
 
-<div id="mainBox" class="card">
-  <h2 class="title" style="font-size:24px;">سكربت التفاحه</h2>
-  <div id="attempts">المحاولات: 0</div>
+<!-- واجهة اللعبة -->
+<div id="gameBox" class="card" style="display:none;">
+  <h1>🍎 Apple Game</h1>
+  <div class="badge">المحاولات: <b id="attempts">0</b></div>
 
-  <div id="gridBox">
-    <div id="grid"></div>
+  <div class="row">
+    <div class="mult">X4.02</div>
+    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+  </div>
+  <div class="row">
+    <div class="mult">X2.41</div>
+    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+  </div>
+  <div class="row">
+    <div class="mult">X1.93</div>
+    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+  </div>
+  <div class="row">
+    <div class="mult">X1.54</div>
+    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+  </div>
+  <div class="row">
+    <div class="mult">X1.23</div>
+    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
   </div>
 
-  <button class="btn" onclick="useAttempt()">توليد شبكة</button>
-  <button class="btn" style="background:#222;color:#fff;margin-top:8px;" onclick="copyGrid()">نسخ الشبكة</button>
+  <div class="loader" id="loader"></div>
+
+  <div style="margin-top:20px;display:flex;gap:15px;justify-content:center;">
+    <button onclick="startShowApples()">Show Apple</button>
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
 </div>
 
 <script type="module">
@@ -116,17 +146,8 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const APPLE = "🍎";
-  const BLOCK = "🟦";
-  const COLS = 5; // عدد الأعمدة = 5 فقط (صف واحد)
-
   let attempts = 0;
   let currentCode = "";
-  let lastGridArray = [];
-
-  window.openTelegram = () => {
-    window.open("https://t.me/nbvvte", "_blank");
-  };
 
   window.login = async () => {
     const userId = document.getElementById("userId").value.trim();
@@ -135,7 +156,7 @@
 
     if (!userId || !codeInput) {
       errorMsg.style.display = "block";
-      errorMsg.textContent = " ID ادخل الكود و";
+      errorMsg.textContent = "ID ادخل الكود و";
       return;
     }
 
@@ -152,11 +173,7 @@
 
       errorMsg.style.display = "none";
       document.getElementById("loginBox").style.display = "none";
-      document.getElementById("mainBox").style.display = "block";
-
-      const cart = document.getElementById("cartBtn");
-      if (cart) cart.style.display = "none";
-
+      document.getElementById("gameBox").style.display = "block";
       updateAttemptsUI();
     } catch(e){
       errorMsg.style.display = "block";
@@ -165,49 +182,50 @@
   };
 
   function updateAttemptsUI(){
-    document.getElementById("attempts").textContent = "المحاولات: " + attempts;
+    document.getElementById("attempts").textContent = attempts;
   }
 
-  window.useAttempt = async () => {
-    if (attempts <= 0){ logout(); return; }
+  function logoutAuto(){
+    document.getElementById("gameBox").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+    document.querySelectorAll('.slot').forEach(s => s.textContent = "");
+    document.getElementById("loader").style.display = "none";
+    currentCode = "";
+  }
+
+  window.startShowApples = async () => {
+    if (attempts <= 0) {
+      logoutAuto();
+      return;
+    }
     attempts--;
     updateAttemptsUI();
-    generateGrid();
-
     await update(ref(db, "codes/" + currentCode), { remaining: attempts });
 
-    if (attempts <= 0){ setTimeout(()=> logout(), 800); }
+    document.getElementById("loader").style.display = "block";
+    document.querySelectorAll('.slot').forEach(s => s.textContent = "");
+
+    setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      showApples();
+
+      if (attempts <= 0) {
+        setTimeout(()=> logoutAuto(), 1000);
+      }
+    }, 2000);
   };
 
-  window.logout = () => {
-    document.getElementById("mainBox").style.display = "none";
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("grid").innerHTML = "";
-
-    const cart = document.getElementById("cartBtn");
-    if (cart) cart.style.display = "flex";
-  };
-
-  function generateGrid(){
-    const arr = Array(COLS).fill(BLOCK);
-    const col = Math.floor(Math.random() * COLS); // مكان التفاحة في الصف
-    arr[col] = APPLE;
-    lastGridArray = arr.slice();
-
-    const grid = document.getElementById("grid");
-    grid.innerHTML = "";
-    arr.forEach(item=>{
-      const div = document.createElement("div");
-      div.className = "cell";
-      div.textContent = item;
-      grid.appendChild(div);
+  function showApples() {
+    document.querySelectorAll('.row').forEach(row => {
+      let slots = row.querySelectorAll('.slot');
+      let randomIndex = Math.floor(Math.random() * slots.length);
+      slots[randomIndex].textContent = "🍎";
     });
   }
 
-  window.copyGrid = () => {
-    if (!lastGridArray.length) return;
-    let out = lastGridArray.join(" ");
-    navigator.clipboard.writeText(out).then(()=> alert("تم النسخ ✅"));
+  window.resetGame = () => {
+    document.querySelectorAll('.slot').forEach(s => s.textContent = "");
+    document.getElementById("loader").style.display = "none";
   };
 </script>
 </body>
