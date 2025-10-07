@@ -1,136 +1,153 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>🍎 Apple Game</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>🍎 Apple Game — Hacker Matrix (Firebase)</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Roboto:wght@300;700&display=swap" rel="stylesheet">
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #2a004a;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+  :root{
+    --bg:#000;
+    --neon:#00ff88;
+    --accent: rgba(0,255,136,0.22);
+    --danger:#ff6b6b;
+    --slot-size: 56px;
   }
-  .card {
-    text-align: center;
-    background: #4a006e;
-    padding: 25px;
-    border-radius: 14px;
-    box-shadow: 0 0 20px rgba(255,102,204,0.4);
-    width: min(95vw, 420px);
-    position: relative;
-  }
-  h1 { color: #ff66cc; font-size: 28px; margin-bottom: 15px; }
-  .input {
-    width: 100%; height: 44px; border: none; border-radius: 10px;
-    margin: 6px 0; padding: 0 10px; text-align: center; font-size: 16px;
-  }
-  .error { display: none; color: #ff4b4b; font-weight: 700; margin: 6px 0; }
-  button {
-    padding: 12px 24px; border: none; border-radius: 10px;
-    background: #ff66cc; color: #fff; font-size: 16px;
-    cursor: pointer; font-weight: bold;
-  }
-  button:hover { opacity: .9; }
-  .badge {
-    background: #6a008f; padding: 8px 14px; border-radius: 10px;
-    margin: 10px auto; display: inline-block;
-  }
-  .row { display: flex; align-items: center; justify-content: center; margin: 10px 0; gap: 10px; }
-  .mult { background: #ff66cc; padding: 8px; border-radius: 8px; font-weight: bold; min-width: 70px; }
-  .slots { display: flex; gap: 10px; }
-  .slot {
-    width: 46px; height: 46px; background: #fff; border-radius: 8px;
-    font-size: 26px; display: flex; align-items: center; justify-content: center; color: #000;
-  }
-  .loader {
-    border: 6px solid #fff; border-top: 6px solid #ff66cc;
-    border-radius: 50%; width: 60px; height: 60px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto; display: none;
-  }
-  @keyframes spin { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Roboto,Arial,sans-serif;color:var(--neon);overflow:hidden}
+  body{display:flex;align-items:center;justify-content:center;padding:20px}
 
-  .telegram-btn {
-    position: absolute;
-    bottom: -60px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #0088cc;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 15px rgba(0,136,204,0.6);
-    cursor: pointer;
-    transition: 0.3s;
+  /* matrix canvas */
+  canvas#matrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;background:#000;}
+
+  .card{position:relative;z-index:2;width:min(96vw,520px);border-radius:14px;padding:26px 22px 120px;
+    background:linear-gradient(180deg,rgba(0,0,0,0.9),rgba(10,10,10,0.85));border:2px solid rgba(0,255,136,0.3);
+    box-shadow:0 0 30px rgba(0,255,136,0.25);backdrop-filter: blur(4px);}
+
+  h1{font-family:"Share Tech Mono",monospace;color:var(--neon);text-align:center;font-size:26px;margin:0 0 18px;
+    text-shadow:0 0 25px rgba(0,255,136,0.4);}
+
+  .field{margin-bottom:14px;}
+  .label{display:block;color:#b8ffe0;text-align:center;font-family:"Share Tech Mono",monospace;}
+  input.input{Width:100%;padding:14px;border-radius:10px;border:2px solid rgba(0,255,136,0.35);
+    background:rgba(0,20,10,0.7);color:#dfffe8;text-align:center;font-size:16px;box-shadow:0 0 25px rgba(0,255,136,0.15) inset;
+    outline:none;transition:0.3s;}
+  input.input:focus{box-shadow:0 0 30px rgba(0,255,136,0.5);}
+
+  .btn{display:inline-block;width:100%;padding:12px;border-radius:12px;border:2px solid rgba(0,255,136,0.5);
+    background:rgba(0,255,136,0.1);color:var(--neon);font-weight:800;font-size:16px;cursor:pointer;}
+  .btn:hover{box-shadow:0 0 35px rgba(0,255,136,0.4);transform:scale(1.03);}
+
+  /* error/alert (واضح جداً) */
+  .error {
+    display:none;
+    margin-top:12px;
+    padding:12px 14px;
+    border-radius:10px;
+    background:linear-gradient(90deg, rgba(255,80,80,0.14), rgba(255,40,40,0.06));
+    border:1px solid rgba(255,80,80,0.28);
+    color:#ffdddd;
+    font-weight:900;
+    text-align:center;
+    box-shadow: 0 8px 30px rgba(255,40,40,0.06), 0 0 18px rgba(255,80,80,0.04);
+    transform-origin:center;
   }
-  .telegram-btn:hover { background: #00aaff; }
-  .telegram-btn img {
-    width: 28px; height: 28px;
-  }
+
+  .telegram-btn{position:absolute;bottom:-66px;left:50%;transform:translateX(-50%);width:68px;height:68px;border-radius:50%;
+    background:#0088cc;display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(0,136,204,0.5);z-index:4}
+  .telegram-btn img{width:36px;height:36px;}
+
+  /* Game UI */
+  #gameBox{display:none;text-align:center;}
+  .badge{display:inline-block;padding:10px 16px;border-radius:12px;border:2px solid var(--accent);color:#dfffe8;font-weight:900;margin-bottom:12px;background:rgba(0,255,136,0.05);}
+  .row{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0;}
+  .mult{min-width:78px;padding:8px;border-radius:10px;background:rgba(0,255,136,0.1);color:#00ff88;font-weight:900;text-align:center;font-family:"Share Tech Mono",monospace;box-shadow:0 0 20px rgba(0,255,136,0.3);}
+
+  .slots{display:flex;gap:12px;}
+  .slot{width:var(--slot-size);height:var(--slot-size);border-radius:12px;background:linear-gradient(180deg,#052015,#03100a);
+    display:flex;align-items:center;justify-content:center;font-size:22px;color:#ff8080;border:2px solid rgba(255,60,60,0.4);
+    box-shadow:0 0 20px rgba(255,60,60,0.3),inset 0 0 15px rgba(255,0,0,0.2);transition:0.2s;}
+  .slot.neon{color:#fff;border:2px solid rgba(0,255,136,0.9);background:rgba(0,40,20,0.9);box-shadow:0 0 35px rgba(0,255,136,0.4),inset 0 0 20px rgba(0,255,136,0.2);}
+  .slot.apple{filter:drop-shadow(0 0 15px rgba(0,255,136,0.5));}
+  .slot:hover{transform:scale(1.1);}
+
+  .loader{width:72px;height:72px;border-radius:50%;border:8px solid rgba(0,255,136,0.1);border-top-color:rgba(0,255,136,1);margin:18px auto;display:none;animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .controls{display:flex;gap:12px;justify-content:center;margin-top:12px;}
+  .ghost{background:transparent;border:2px dashed rgba(0,255,136,0.3);color:var(--neon);padding:10px 12px;border-radius:10px;cursor:pointer;}
 </style>
 </head>
 <body>
 
-<!-- تسجيل الدخول -->
-<div id="loginBox" class="card">
-  <h1>تسجيل الدخول</h1>
-  <input id="userId" class="input" type="text" placeholder="ID" />
-  <input id="code" class="input" type="text" placeholder="Code" autocomplete="one-time-code" />
-  <div id="errorMsg" class="error">كود خطأ أو انتهى</div>
-  <button onclick="login()">تأكيد</button>
+<canvas id="matrix"></canvas>
 
-  <a href="https://t.me/Loty122" target="_blank" class="telegram-btn">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram"/>
+<!-- Login card -->
+<div id="loginBox" class="card" role="main" aria-live="polite">
+  <h1>تسجيل الدخول</h1>
+  <div class="field">
+    <label class="label">ID</label>
+    <input id="userId" class="input" type="text" placeholder="اكتب الـ ID" autocomplete="off" />
+  </div>
+  <div class="field">
+    <label class="label">كود التفعيل</label>
+    <input id="code" class="input" type="text" placeholder="اكتب كود التفعيل" autocomplete="one-time-code" />
+  </div>
+
+  <button class="btn" onclick="login()">تسجيل الدخول</button>
+
+  <!-- ERROR CLEARLY VISIBLE -->
+  <div id="errorMsg" class="error" role="alert" aria-live="assertive">⚠️ الكود خطأ أو انتهى</div>
+
+  <a href="https://t.me/Loty122" target="_blank" class="telegram-btn" aria-label="Telegram">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram" />
   </a>
 </div>
 
-<!-- واجهة اللعبة -->
-<div id="gameBox" class="card" style="display:none;">
+<!-- Game card -->
+<div id="gameBox" class="card" aria-hidden="true">
   <h1>🍎 Apple Game</h1>
   <div class="badge">المحاولات: <b id="attempts">0</b></div>
 
   <div class="row">
     <div class="mult">X4.02</div>
-    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+    <div class="slots"><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div></div>
   </div>
+
   <div class="row">
     <div class="mult">X2.41</div>
-    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+    <div class="slots"><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div></div>
   </div>
+
   <div class="row">
     <div class="mult">X1.93</div>
-    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+    <div class="slots"><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div></div>
   </div>
+
   <div class="row">
     <div class="mult">X1.54</div>
-    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+    <div class="slots"><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div></div>
   </div>
+
   <div class="row">
     <div class="mult">X1.23</div>
-    <div class="slots"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+    <div class="slots"><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div><div class="slot">X</div></div>
   </div>
 
-  <div class="loader" id="loader"></div>
+  <div id="loader" class="loader" aria-hidden="true"></div>
 
-  <div style="margin-top:20px;display:flex;gap:15px;justify-content:center;">
-    <button onclick="startShowApples()">Show Apple</button>
-    <button onclick="resetGame()">Reset Game</button>
+  <div class="controls">
+    <button class="btn" onclick="startShowApples()">ابدأ</button>
+    <button class="ghost" onclick="resetGame()">إعادة</button>
   </div>
 </div>
 
 <script type="module">
+  // Firebase (modular) imports
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
-  // 🔥 مشروعك الجديد gooa-6c940
+  // ====== استخدم بيانات مشروعك هنا (اللي بعتهولي) ======
   const firebaseConfig = {
     apiKey: "AIzaSyDW4dAASi236YpSrebx7NkMBBNe6_rp5OI",
     authDomain: "gooa-6c940.firebaseapp.com",
@@ -142,90 +159,220 @@
     measurementId: "G-66CL69F082"
   };
 
+  // init firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  // state
   let attempts = 0;
   let currentCode = "";
+  let errorTimeout = null;
 
-  window.login = async () => {
-    const userId = document.getElementById("userId").value.trim();
-    const codeInput = document.getElementById("code").value.trim();
-    const errorMsg = document.getElementById("errorMsg");
+  // DOM
+  const errorEl = document.getElementById("errorMsg");
+  const loaderEl = document.getElementById("loader");
+  const attemptsEl = document.getElementById("attempts");
 
-    if (!userId || !codeInput) {
-      errorMsg.style.display = "block";
-      errorMsg.textContent = "ادخل ID والكود";
+  // show error in a clear visible way
+  function showError(msg){
+    clearTimeout(errorTimeout);
+    errorEl.textContent = msg;
+    errorEl.style.display = "block";
+    errorEl.style.opacity = "1";
+    errorEl.style.transform = "scale(1.02)";
+    // hide after 2s
+    errorTimeout = setTimeout(()=>{
+      errorEl.style.transition = "opacity .28s, transform .28s";
+      errorEl.style.opacity = "0";
+      errorEl.style.transform = "scale(.98)";
+      setTimeout(()=>{
+        errorEl.style.display = "none";
+        errorEl.style.transition = "";
+        errorEl.style.opacity = "1";
+        errorEl.style.transform = "";
+      }, 300);
+    }, 2000);
+  }
+
+  function updateAttemptsUI(){
+    attemptsEl.textContent = attempts;
+  }
+
+  // expose to onclick
+  window.login = async function(){
+    const id = document.getElementById("userId").value.trim();
+    const code = document.getElementById("code").value.trim();
+
+    if (!id || !code) {
+      showError("⚠️ ادخل الـ ID والكود");
       return;
     }
 
     try {
-      const snap = await get(ref(db, "codes/" + codeInput));
-      if (!snap.exists()) throw new Error("invalid");
-
+      const snap = await get(ref(db, "codes/" + code));
+      if (!snap.exists()) {
+        showError("⚠️ الكود خطأ أو انتهى");
+        return;
+      }
       const data = snap.val();
-      if ((data.remaining ?? 0) <= 0) throw new Error("exhausted");
+      const rem = data.remaining ?? 0;
+      if (rem <= 0) {
+        showError("⚠️ الكود خطأ أو انتهى");
+        return;
+      }
 
-      currentCode = codeInput;
-      attempts = data.remaining;
-      await update(ref(db, "codes/" + codeInput), { user: userId });
+      // success: set state, save user, show game
+      currentCode = code;
+      attempts = rem;
+      updateAttemptsUI();
+      // try to store user id (non-blocking)
+      try { await update(ref(db, "codes/" + code), { user: id }); } catch(e){ console.warn("update user failed", e); }
 
-      errorMsg.style.display = "none";
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("gameBox").style.display = "block";
-      updateAttemptsUI();
-    } catch(e){
-      errorMsg.style.display = "block";
-      errorMsg.textContent = "كود خطأ أو انتهى";
+
+      // ensure slots are placeholders
+      document.querySelectorAll(".slot").forEach(s => {
+        s.textContent = "X";
+        s.classList.remove("neon","apple");
+        s.style.color = "#ff8080";
+      });
+    } catch (e) {
+      console.error(e);
+      showError("⚠️ حدث خطأ في الاتصال");
     }
   };
 
-  function updateAttemptsUI(){
-    document.getElementById("attempts").textContent = attempts;
-  }
+  // ======= تعديل دالة resetGame (تم التغيير هنا فقط) =======
+  window.resetGame = function(){
+    // إعادة كل المربعات لحالتها الأصلية (X حمراء) وإزالة أي كلاسات/ستايلات مؤقتة
+    document.querySelectorAll(".slot").forEach(s=>{
+      s.textContent = "X";
+      s.classList.remove("neon","apple");
+      s.style.color = "#ff8080";
+      // فرّغ أي ستايل تم تغييره بالـ js ليعود إلى الـ css الافتراضي
+      s.style.borderColor = "";
+      s.style.boxShadow = "";
+    });
 
-  function logoutAuto(){
-    document.getElementById("gameBox").style.display = "none";
-    document.getElementById("loginBox").style.display = "block";
-    document.querySelectorAll('.slot').forEach(s => s.textContent = "");
-    document.getElementById("loader").style.display = "none";
-    currentCode = "";
-  }
+    // إخفاء اللودر لو ظاهر
+    loaderEl.style.display = "none";
 
-  window.startShowApples = async () => {
-    if (attempts <= 0) {
-      logoutAuto();
-      return;
+    // لو في كود حالي، نحاول نرجع قيمة المحاولات من الـ database (ترجع للوضع قبل اللعب)
+    if (currentCode) {
+      get(ref(db, "codes/" + currentCode)).then(snap => {
+        if (snap.exists()) {
+          const data = snap.val();
+          attempts = data.remaining ?? attempts;
+          updateAttemptsUI();
+        }
+      }).catch(err=>{
+        // لو فشل الاتصال نخلّي المحاولات كما هي محليًا
+        console.warn("failed to fetch attempts on reset:", err);
+      });
     }
+
+    // حركة خفيفة لإحساس الـ reset (flash)
+    document.querySelectorAll(".row").forEach((r, idx)=>{
+      r.style.transition = "transform .18s ease, opacity .18s ease";
+      r.style.transform = "scale(0.98)";
+      r.style.opacity = "0.88";
+      setTimeout(()=>{ r.style.transform=""; r.style.opacity="1"; }, 180 + idx*30);
+    });
+  };
+  // =========================================================
+
+  window.startShowApples = async function(){
+    if (!currentCode) { showError("⚠️ الكود خطأ أو انتهى"); return; }
+    if (attempts <= 0) { showError("⚠️ انتهت المحاولات"); logoutToLogin(); return; }
+
+    // decrement local & persist
     attempts--;
     updateAttemptsUI();
-    await update(ref(db, "codes/" + currentCode), { remaining: attempts });
+    try {
+      await update(ref(db, "codes/" + currentCode), { remaining: attempts });
+    } catch(e) {
+      console.warn("failed to update remaining:", e);
+      // still proceed locally
+    }
 
-    document.getElementById("loader").style.display = "block";
-    document.querySelectorAll('.slot').forEach(s => s.textContent = "");
+    // loader + clear
+    loaderEl.style.display = "block";
+    document.querySelectorAll(".slot").forEach(s=>{
+      s.textContent = "X";
+      s.classList.remove("neon","apple");
+    });
 
-    setTimeout(() => {
-      document.getElementById("loader").style.display = "none";
+    // small visual bounce
+    const rows = document.querySelectorAll(".row");
+    rows.forEach((r, idx) => {
+      r.style.transform = "translateY(-8px)";
+      r.style.opacity = "0.85";
+      setTimeout(()=>{ r.style.transform=""; r.style.opacity="1"; }, 420 + idx*60);
+    });
+
+    setTimeout(()=>{
+      loaderEl.style.display = "none";
       showApples();
-
-      if (attempts <= 0) {
-        setTimeout(()=> logoutAuto(), 1000);
-      }
-    }, 2000);
+      if (attempts <= 0) setTimeout(()=> logoutToLogin(), 900);
+    }, 1100 + Math.random()*800);
   };
 
-  function showApples() {
-    document.querySelectorAll('.row').forEach(row => {
-      let slots = row.querySelectorAll('.slot');
-      let randomIndex = Math.floor(Math.random() * slots.length);
-      slots[randomIndex].textContent = "🍎";
+  function showApples(){
+    document.querySelectorAll(".row").forEach(row=>{
+      const slots = row.querySelectorAll(".slot");
+      const r = Math.floor(Math.random() * slots.length);
+      slots.forEach(s => { s.textContent = "X"; s.classList.remove("neon","apple"); });
+      const chosen = slots[r];
+      if (chosen) {
+        chosen.textContent = "🍎";
+        chosen.classList.add("neon","apple");
+        chosen.style.borderColor = "rgba(0,255,136,0.95)";
+        chosen.animate([{ transform: "scale(.96)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }], { duration: 420, easing: "cubic-bezier(.2,.8,.2,1)" });
+      }
     });
   }
 
-  window.resetGame = () => {
-    document.querySelectorAll('.slot').forEach(s => s.textContent = "");
-    document.getElementById("loader").style.display = "none";
-  };
+  function logoutToLogin(){
+    document.getElementById("gameBox").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+    resetGame();
+    currentCode = "";
+    attempts = 0;
+    updateAttemptsUI();
+  }
+
+  // Matrix background (slower, smooth)
+  const canvas = document.getElementById("matrix"), ctx = canvas.getContext("2d");
+  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  window.addEventListener("resize", resize); resize();
+
+  const fontSize = 16;
+  let cols = Math.floor(canvas.width / fontSize), drops = Array(cols).fill(1);
+  function draw() {
+    // slower trailing effect
+    ctx.fillStyle = "rgba(0,0,0,0.16)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "#00ff88";
+    ctx.font = fontSize + "px monospace";
+
+    // update columns if width changed
+    const newCols = Math.floor(canvas.width / fontSize);
+    if (newCols !== cols) { cols = newCols; drops = Array(cols).fill(1); }
+
+    for (let i = 0; i < drops.length; i++){
+      const chars = "٠١٢٣٤٥٦٧٨٩ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%^&*()-+=/\\|";
+      const text = chars.charAt(Math.floor(Math.random() * chars.length));
+      const x = i * fontSize;
+      const y = drops[i] * fontSize;
+      ctx.fillText(text, x, y);
+      // slower reset => calmer animation
+      if (y > canvas.height && Math.random() > 0.992) drops[i] = 0;
+      drops[i]++;
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
 </script>
 </body>
   </html>
